@@ -1,0 +1,340 @@
+openapi: 3.0.3
+info:
+  title: Templates API
+  version: '1.0'
+  description: API for managing DOCX templates
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /templates:
+    get:
+      summary: Get all templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Tenant ID to filter templates
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid tenant ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new template
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: DOCX template file
+                tenantId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                category:
+                  $ref: '#/components/schemas/TemplateCategory'
+                documentType:
+                  $ref: '#/components/schemas/DocumentType'
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+              required:
+                - file
+                - tenantId
+                - code
+                - name
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Template code already exists for this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /templates/{id}:
+    get:
+      summary: Get template by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update template
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: New DOCX template file (optional, replaces existing file)
+                name:
+                  type: string
+                description:
+                  type: string
+                category:
+                  $ref: '#/components/schemas/TemplateCategory'
+                documentType:
+                  $ref: '#/components/schemas/DocumentType'
+                status:
+                  $ref: '#/components/schemas/TemplateStatus'
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete template
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Template deleted
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    Template:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/TemplateCategory'
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        path:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        modifiedDate:
+          type: string
+          format: date-time
+        modifiedBy:
+          type: string
+      required:
+        - templateId
+        - tenantId
+        - code
+        - status
+    TemplateCategory:
+      type: string
+      enum:
+        - IBI
+        - IVTM
+        - IAE
+        - RECAUDACION
+        - NOTIFICACION
+    DocumentType:
+      type: string
+      enum:
+        - CARTA_PAGO
+        - NOTIFICACION
+        - RECIBO
+        - RESOLUCION
+        - EDICTO
+    TemplateStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - ARCHIVED
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/TemplateCategory'
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+    ApiResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          description: Response data
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    Metadata:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+        page:
+          type: integer
+          description: Current page number
+        pageSize:
+          type: integer
+          description: Number of items per page
+        totalPages:
+          type: integer
+          description: Total number of pages
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Authorization header using the Bearer scheme

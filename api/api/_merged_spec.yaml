@@ -1,0 +1,19 @@
+---
+servers:
+- url: "http://localhost:8080"
+openapi: "3.0.3"
+paths:
+  /templates:
+    $ref: "./templates-openapi.yaml#/paths/~1templates"
+  /templates/{id}:
+    $ref: "./templates-openapi.yaml#/paths/~1templates~1{id}"
+  /executions/{id}:
+    $ref: "./executions-openapi.yaml#/paths/~1executions~1{id}"
+  /executions/{id}/cancel:
+    $ref: "./executions-openapi.yaml#/paths/~1executions~1{id}~1cancel"
+  /executions:
+    $ref: "./executions-openapi.yaml#/paths/~1executions"
+info:
+  title: "merged spec"
+  description: "merged spec"
+  version: "1.0.0"

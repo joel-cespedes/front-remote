@@ -1,0 +1,293 @@
+openapi: 3.0.3
+info:
+  title: Executions API
+  version: '1.0'
+  description: API for launching template executions and querying execution history
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /executions:
+    get:
+      summary: Get execution history
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: templateId
+          schema:
+            type: string
+            format: uuid
+          description: Filter by template ID
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ExecutionStatus'
+          description: Filter by execution status
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Page number for pagination
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: List of executions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Execution'
+    post:
+      summary: Launch a new execution
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LaunchExecutionRequest'
+      responses:
+        '202':
+          description: Execution launched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /executions/{id}:
+    get:
+      summary: Get execution details
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Execution details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '404':
+          description: Execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /executions/{id}/cancel:
+    post:
+      summary: Cancel a pending execution
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Execution cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+              example:
+                executionId: "123e4567-e89b-12d3-a456-426614174000"
+                templateId: "456e7890-e89b-12d3-a456-426614174001"
+                status: "CANCELLED"
+                numberOfDocuments: 5
+                convertToPdf: true
+                createdDate: "2026-02-05T10:00:00Z"
+                startTime: null
+                endTime: null
+                duration: null
+                createdBy: "user@example.com"
+                errorMessage: null
+                generatedFiles: []
+        '400':
+          description: Execution cannot be cancelled (not in PENDING status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2026-02-05T10:05:00Z"
+                status: 400
+                error: "Bad Request"
+                message: "Execution cannot be cancelled because it is already RUNNING"
+                path: "/api/executions/123e4567-e89b-12d3-a456-426614174000/cancel"
+        '404':
+          description: Execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2026-02-05T10:05:00Z"
+                status: 404
+                error: "Not Found"
+                message: "Execution with ID 123e4567-e89b-12d3-a456-426614174000 not found"
+                path: "/api/executions/123e4567-e89b-12d3-a456-426614174000/cancel"
+components:
+  schemas:
+    Execution:
+      type: object
+      properties:
+        executionId:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        numberOfDocuments:
+          type: integer
+          minimum: 1
+        convertToPdf:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+          description: Date when the execution process was created
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in milliseconds
+        createdBy:
+          type: string
+        errorMessage:
+          type: string
+        generatedFiles:
+          type: array
+          items:
+            type: object
+            properties:
+              fileName:
+                type: string
+              downloadUrl:
+                type: string
+      required:
+        - executionId
+        - templateId
+        - status
+        - numberOfDocuments
+        - createdDate
+        - startTime
+        - createdBy
+    ExecutionStatus:
+      type: string
+      enum:
+        - PENDING
+        - RUNNING
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+    LaunchExecutionRequest:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        numberOfDocuments:
+          type: integer
+          minimum: 1
+          description: Number of documents to generate
+        convertToPdf:
+          type: boolean
+          description: Whether to convert generated documents to PDF
+      required:
+        - templateId
+        - numberOfDocuments
+        - convertToPdf
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+    ApiResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          description: Response data
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    Metadata:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+        page:
+          type: integer
+          description: Current page number
+        pageSize:
+          type: integer
+          description: Number of items per page
+        totalPages:
+          type: integer
+          description: Total number of pages
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Authorization header using the Bearer scheme
