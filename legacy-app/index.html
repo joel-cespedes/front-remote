@@ -229,11 +229,11 @@
         </div>
 
         <div style="margin-top: 20px;">
-          <button class="btn btn-legacy" ng-click="irAMicrofront('/billing')">
-            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Billing
+          <button class="btn btn-legacy" ng-click="irAMicrofront('/')">
+            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Home
           </button>
-          <button class="btn btn-legacy" ng-click="irAMicrofront('/users')">
-            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Users
+          <button class="btn btn-legacy" ng-click="irAMicrofront('/templates')">
+            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Templates
           </button>
         </div>
       </div>
@@ -242,7 +242,7 @@
       <!-- Tab Clientes -->
       <div ng-show="activeTab === 'clientes'">
         <h3>Clientes del Sistema</h3>
-        <p>Selecciona un cliente para enviarlo al microfrontend de Cobranza.</p>
+        <p>Selecciona un cliente para ver su detalle en el microfrontend.</p>
 
         <table class="table table-striped legacy-table">
           <thead>
@@ -261,8 +261,8 @@
               <td>{{cliente.documento}}</td>
               <td>${{cliente.deuda}}</td>
               <td>
-                <button class="btn btn-sm btn-warning" ng-click="enviarACobranza(cliente)">
-                  <span class="glyphicon glyphicon-send"></span> Enviar a Cobranza
+                <button class="btn btn-sm btn-warning" ng-click="enviarDetalle(cliente)">
+                  <span class="glyphicon glyphicon-send"></span> Enviar detalle de usuario
                 </button>
               </td>
             </tr>
@@ -348,12 +348,12 @@
       };
 
 
-      // Enviar cliente a Cobranza (MF Collection)
-      $scope.enviarACobranza = function(cliente) {
+      // Enviar detalle de usuario al host
+      $scope.enviarDetalle = function(cliente) {
         if (window.parent !== window) {
           window.parent.postMessage({
             type: 'OPEN_MF',
-            path: '/collection',
+            path: '/users',
             data: {
               clienteId: cliente.id,
               nombre: cliente.nombre,
@@ -363,7 +363,7 @@
             }
           }, SHELL_ORIGIN);
 
-          console.log('[LEGACY] Enviando cliente a Cobranza:', cliente);
+          console.log('[LEGACY] Enviando detalle de usuario:', cliente);
         } else {
           alert('Esta función solo funciona cuando la app está embebida en el Shell');
         }
