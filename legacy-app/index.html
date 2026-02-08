@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html ng-app="legacyApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy App - Sistema Antiguo</title>
+
+  <!-- AngularJS 1.8 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <!-- Bootstrap 3 (estilo legacy) -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .legacy-header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .legacy-header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .legacy-header .badge-legacy {
+      background-color: #e74c3c;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .legacy-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    .legacy-alert {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .legacy-alert .glyphicon {
+      margin-right: 10px;
+      color: #856404;
+    }
+
+    .session-info {
+      background-color: #d4edda;
+      border: 1px solid #28a745;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .session-info.no-session {
+      background-color: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .nav-tabs > li > a {
+      border-radius: 0;
+      background-color: #ecf0f1;
+    }
+
+    .nav-tabs > li.active > a {
+      background-color: #3498db;
+      color: white;
+      border: none;
+    }
+
+    .tab-content {
+      background-color: white;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-top: none;
+      min-height: 300px;
+    }
+
+    .legacy-table {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .legacy-table th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .btn-legacy {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+    }
+
+    .btn-legacy:hover {
+      background-color: #2980b9;
+      color: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+    }
+
+    .loading .spinner {
+      font-size: 40px;
+      color: #3498db;
+    }
+
+    .no-session-panel {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .no-session-icon {
+      font-size: 80px;
+      color: #e74c3c;
+      margin-bottom: 20px;
+    }
+
+    .no-session-panel h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    .no-session-panel p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .no-session-panel .hint {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body ng-controller="MainController">
+
+  <!-- Header -->
+  <div class="legacy-header">
+    <h1>SISTEMA LEGACY</h1>
+    <span class="badge-legacy">AngularJS 1.8 - Aplicación Antigua</span>
+  </div>
+
+  <div class="legacy-container">
+
+    <!-- Contenido -->
+    <div>
+
+      <!-- Alerta de sistema legacy -->
+      <div class="legacy-alert">
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        <strong>Atención:</strong> Esta es una aplicación legacy que será migrada progresivamente a microfrontends.
+      </div>
+
+
+      <!-- Tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" ng-class="{active: activeTab === 'inicio'}">
+        <a href="" ng-click="setTab('inicio')">
+          <span class="glyphicon glyphicon-home"></span> Inicio
+        </a>
+      </li>
+      <li role="presentation" ng-class="{active: activeTab === 'clientes'}">
+        <a href="" ng-click="setTab('clientes')">
+          <span class="glyphicon glyphicon-user"></span> Clientes
+        </a>
+      </li>
+      <li role="presentation" ng-class="{active: activeTab === 'acerca'}">
+        <a href="" ng-click="setTab('acerca')">
+          <span class="glyphicon glyphicon-info-sign"></span> Acerca de
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+
+      <!-- Tab Inicio -->
+      <div ng-show="activeTab === 'inicio'">
+        <h3>Dashboard Legacy</h3>
+        <p>Bienvenido al sistema legacy. Esta pantalla se carga dentro de un iframe en el Shell de microfrontends.</p>
+
+        <div class="row" style="margin-top: 30px;">
+          <div class="col-md-4">
+            <div class="panel panel-primary">
+              <div class="panel-heading">Facturas Pendientes</div>
+              <div class="panel-body text-center">
+                <h2>{{dashboard.facturasPendientes || 0}}</h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-success">
+              <div class="panel-heading">Cobros Pendientes</div>
+              <div class="panel-body text-center">
+                <h2>{{dashboard.cobrosPendientes || 0}}</h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-info">
+              <div class="panel-heading">Usuarios Activos</div>
+              <div class="panel-body text-center">
+                <h2>{{dashboard.usuariosActivos || 0}}</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <button class="btn btn-legacy" ng-click="irAMicrofront('/billing')">
+            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Billing
+          </button>
+          <button class="btn btn-legacy" ng-click="irAMicrofront('/users')">
+            <span class="glyphicon glyphicon-arrow-right"></span> Ir a Users
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Tab Clientes -->
+      <div ng-show="activeTab === 'clientes'">
+        <h3>Clientes del Sistema</h3>
+        <p>Selecciona un cliente para enviarlo al microfrontend de Cobranza.</p>
+
+        <table class="table table-striped legacy-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Documento</th>
+              <th>Deuda</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="cliente in clientes">
+              <td>{{cliente.id}}</td>
+              <td>{{cliente.nombre}}</td>
+              <td>{{cliente.documento}}</td>
+              <td>${{cliente.deuda}}</td>
+              <td>
+                <button class="btn btn-sm btn-warning" ng-click="enviarACobranza(cliente)">
+                  <span class="glyphicon glyphicon-send"></span> Enviar a Cobranza
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab Acerca de -->
+      <div ng-show="activeTab === 'acerca'">
+        <h3>Acerca del Sistema Legacy</h3>
+
+        <div class="well">
+          <h4>Información Técnica</h4>
+          <ul>
+            <li><strong>Framework:</strong> AngularJS 1.8.2</li>
+            <li><strong>Estilos:</strong> Bootstrap 3.4.1</li>
+            <li><strong>Autenticación:</strong> Ninguna (modo demo)</li>
+            <li><strong>Estado:</strong> En proceso de migración a microfrontends</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-info">
+          <strong>Nota:</strong> Esta aplicación demuestra cómo un sistema legacy puede
+          convivir con microfrontends modernos durante un proceso de migración gradual.
+          <br><br>
+          <strong>Comunicación con el Shell:</strong>
+          <ul>
+            <li>Recibe IDSESSION via <code>postMessage</code></li>
+            <li>Puede solicitar navegación a MFs nuevos</li>
+            <li>Comparte eventos con otros microfrontends</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // APLICACIÓN ANGULARJS
+    // ============================================
+    var app = angular.module('legacyApp', []);
+
+    // Configuración del Shell (origen permitido)
+    var SHELL_ORIGIN = 'http://localhost:4200';
+    app.controller('MainController', ['$scope', function($scope) {
+
+      // Estado inicial
+      $scope.activeTab = 'inicio';
+      $scope.dashboard = {
+        facturasPendientes: 42,
+        cobrosPendientes: 18,
+        usuariosActivos: 7
+      };
+
+      // Datos de clientes de ejemplo
+      $scope.clientes = [
+        { id: 1001, nombre: 'Juan Pérez García', documento: '12345678A', deuda: 1500.50 },
+        { id: 1002, nombre: 'María López Sánchez', documento: '87654321B', deuda: 2300.00 },
+        { id: 1003, nombre: 'Carlos Rodríguez Martín', documento: '11223344C', deuda: 890.75 },
+        { id: 1004, nombre: 'Ana Fernández Ruiz', documento: '44332211D', deuda: 3200.25 },
+        { id: 1005, nombre: 'Pedro Gómez Torres', documento: '55667788E', deuda: 450.00 }
+      ];
+
+      // Cambiar tab
+      $scope.setTab = function(tab) {
+        $scope.activeTab = tab;
+      };
+
+      // Navegar a microfrontend (envía mensaje al Shell)
+      $scope.irAMicrofront = function(path) {
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'NAVIGATE',
+            path: path
+          }, SHELL_ORIGIN);
+
+          console.log('[LEGACY] Solicitando navegación a:', path);
+        } else {
+          alert('Esta función solo funciona cuando la app está embebida en el Shell');
+        }
+      };
+
+
+      // Enviar cliente a Cobranza (MF Collection)
+      $scope.enviarACobranza = function(cliente) {
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'OPEN_MF',
+            path: '/collection',
+            data: {
+              clienteId: cliente.id,
+              nombre: cliente.nombre,
+              documento: cliente.documento,
+              deuda: cliente.deuda,
+              origen: 'legacy'
+            }
+          }, SHELL_ORIGIN);
+
+          console.log('[LEGACY] Enviando cliente a Cobranza:', cliente);
+        } else {
+          alert('Esta función solo funciona cuando la app está embebida en el Shell');
+        }
+      };
+
+
+      // ============================================
+      // COMUNICACIÓN CON EL SHELL (postMessage)
+      // ============================================
+      window.addEventListener('message', function(event) {
+        if (!event.origin.includes('localhost')) {
+          console.warn('[LEGACY] Mensaje rechazado de:', event.origin);
+          return;
+        }
+        console.log('[LEGACY] Mensaje recibido:', event.data);
+      });
+
+      // Notificar al Shell que estamos listos
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'LEGACY_READY' }, '*');
+        console.log('[LEGACY] Notificando al Shell que estamos listos');
+      }
+
+    }]);
+  </script>
+
+</body>
+</html>
