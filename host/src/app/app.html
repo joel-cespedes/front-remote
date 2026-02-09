@@ -1,0 +1,40 @@
+<nav class="shell-nav">
+  <div class="shell-nav__inner">
+    <a routerLink="/" class="shell-nav__logo">
+      <img src="img/logoSuma.png" alt="" />
+    </a>
+    <ul class="shell-nav__links">
+      <li>
+        <a
+          routerLink="/"
+          routerLinkActive="shell-nav__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="shell-nav__link">
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          routerLink="/templates"
+          routerLinkActive="shell-nav__link--active"
+          class="shell-nav__link">
+          Templates
+        </a>
+      </li>
+      <li>
+        <a routerLink="/legacy" routerLinkActive="shell-nav__link--active" class="shell-nav__link">
+          Legacy
+        </a>
+      </li>
+      <li>
+        <a routerLink="/users" routerLinkActive="shell-nav__link--active" class="shell-nav__link">
+          Users
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<main class="shell-content">
+  <router-outlet />
+</main>

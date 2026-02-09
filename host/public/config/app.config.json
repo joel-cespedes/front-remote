@@ -1,0 +1,41 @@
+{
+  "appName": "Arquetipo base",
+  "http": {
+    "addTokenJwt": false,
+    "excludeTokenJwt": ["/auth/login", "/auth/refresh"],
+    "retries": {
+      "retriesHttpRequest": false,
+      "maxRetries": 3,
+      "maxInterval": 1000,
+      "exceptionsHttp": []
+    }
+  },
+  "globalLoading": true,
+  "cache": {
+    "cache": false,
+    "maxAge": 50000,
+    "cacheableUrls": ["jsonplaceholder.typicode.com/comments", "comments"]
+  },
+  "trace": {
+    "audit": false,
+    "intervalSend": 5000,
+    "auditHost": "http://localhost:3000/auditoria"
+  },
+  "logger": {
+    "loggers": false,
+    "loggersHost": "http://localhost:3000/send-log"
+  },
+  "errors": {
+    "httpErrors": false,
+    "httpErrorsHost": "http://localhost:3000/error",
+    "jsErrors": false,
+    "jsErrorsHost": "http://localhost:3000/error"
+  },
+  "featureFlags": {
+    "openApiSections": false,
+    "titleCardsExamples": false,
+    "thefirstSixCards": false,
+    "exampleTest": false
+  },
+  "apiModules": [{ "name": "", "baseUrl": "", "path": "/" }]
+}

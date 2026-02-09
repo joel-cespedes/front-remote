@@ -1,0 +1,11 @@
+.actions-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary, #666);
+}

@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+dist
+out-tsc
+
+# Build files
+*.js.map
+*.d.ts
+
+# Logs
+*.log
+
+# Angular
+.angular/cache

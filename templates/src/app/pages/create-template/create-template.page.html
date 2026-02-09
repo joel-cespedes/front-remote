@@ -1,0 +1,84 @@
+<div class="mv-container">
+  <div class="mv-align-between-center">
+    <div class="mv-flex mv-align-center mv-gap-8">
+      <sum-btn label="Volver" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (clicked)="onCancel()" />
+      <h2>{{ isEditMode() ? 'Editar plantilla' : 'Crear plantilla' }}</h2>
+    </div>
+  </div>
+
+  @if (loadingTemplate()) {
+    <p>Cargando plantilla...</p>
+  } @else {
+    <div class="mv-grid mv-gap-16">
+      <!-- Row 1: code + name -->
+      <div class="mv-col-6">
+        @if (isEditMode()) {
+          <sum-input label="Codigo" [value]="model().code" [readonly]="true" />
+        } @else {
+          <sum-input [formField]="templateForm.code" label="Codigo" placeholder="Ej: TPL-001" />
+        }
+      </div>
+      <div class="mv-col-6">
+        <sum-input
+          [formField]="templateForm.name"
+          label="Nombre"
+          placeholder="Nombre de la plantilla" />
+      </div>
+
+      <!-- Row 2: category + documentType -->
+      <div class="mv-col-6">
+        <sum-select
+          [formField]="templateForm.category"
+          label="Categoria"
+          [options]="categoryOptions"
+          placeholder="Seleccionar categoria"
+          [showClear]="true" />
+      </div>
+      <div class="mv-col-6">
+        <sum-select
+          [formField]="templateForm.documentType"
+          label="Tipo de documento"
+          [options]="documentTypeOptions"
+          placeholder="Seleccionar tipo"
+          [showClear]="true" />
+      </div>
+
+      <!-- Row 3: startDate + endDate -->
+      <div class="mv-col-6">
+        <sum-datepicker [formField]="templateForm.startDate" label="Fecha de inicio" />
+      </div>
+      <div class="mv-col-6">
+        <sum-datepicker [formField]="templateForm.endDate" label="Fecha de fin" />
+      </div>
+
+      <!-- Row 4: description -->
+      <div class="mv-col-12">
+        <sum-textarea
+          [formField]="templateForm.description"
+          label="Descripcion"
+          placeholder="Descripcion de la plantilla"
+          [rows]="3"
+          [autoResize]="true" />
+      </div>
+
+      <!-- Row 5: file -->
+      <div class="mv-col-12">
+        <sum-attach
+          [formField]="templateForm.file"
+          [label]="isEditMode() ? 'Archivo (opcional, reemplaza el existente)' : 'Archivo'"
+          accept=".doc,.docx"
+          [multiple]="false"
+          placeholder="Arrastra un archivo .docx o haz clic para seleccionar" />
+      </div>
+
+      <!-- Row 6: submit -->
+      <div class="mv-col-12 mv-justify-end">
+        <sum-btn
+          [label]="isEditMode() ? 'Guardar' : 'Crear plantilla'"
+          icon="pi pi-save"
+          severity="primary"
+          (clicked)="onSubmit()" />
+      </div>
+    </div>
+  }
+</div>

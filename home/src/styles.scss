@@ -1,0 +1,10 @@
+/* You can add global styles to this file, and also import other style files */
+@use 'ux/styles/tokens' as tokens;
+@use 'ux/styles/fonts';
+@use 'ux/styles/reset';
+@use 'ux/styles/typography';
+@use 'ux/styles/grid';
+:root {
+  color-scheme: light only;
+  @include tokens.define-theme-defaults();
+}

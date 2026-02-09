@@ -1,0 +1,28 @@
+{
+  "name": "ux",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "primeng": "^21.1.1",
+    "@primeuix/themes": "^2.0.3"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./styles": {
+      "sass": "./styles/_index.scss"
+    },
+    "./styles/tokens": {
+      "sass": "./styles/_tokens.scss"
+    },
+    "./styles/grid": {
+      "sass": "./styles/_grid.scss"
+    },
+    "./styles/mixins": {
+      "sass": "./styles/_mixins.scss"
+    }
+  }
+}

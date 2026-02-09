@@ -1,0 +1,114 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="mv-container">
+  <div class="mv-align-between-center">
+    <h2>Plantillas</h2>
+    <sum-btn label="Nueva plantilla" icon="pi pi-plus" (clicked)="onCreate()" />
+  </div>
+
+  <!-- Filters -->
+  <div class="mv-grid mv-gap-16 m-b-16">
+    <div class="mv-col-3">
+      <sum-select
+        label="Categoria"
+        [options]="categoryOptions"
+        placeholder="Todas las categorias"
+        [showClear]="true"
+        [(value)]="categoryFilter"
+        (valueChange)="onCategoryChange($event)" />
+    </div>
+    <div class="mv-col-3">
+      <sum-select
+        label="Tipo de documento"
+        [options]="documentTypeOptions"
+        placeholder="Todos los tipos"
+        [showClear]="true"
+        [(value)]="documentTypeFilter"
+        (valueChange)="onDocumentTypeChange($event)" />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="filteredTemplates()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} plantillas"
+    styleClass="p-datatable-sm p-datatable-striped">
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="code">
+          Codigo
+          <p-sortIcon field="code" />
+        </th>
+        <th pSortableColumn="name">
+          Nombre
+          <p-sortIcon field="name" />
+        </th>
+        <th pSortableColumn="category">
+          Categoria
+          <p-sortIcon field="category" />
+        </th>
+        <th pSortableColumn="documentType">
+          Tipo documento
+          <p-sortIcon field="documentType" />
+        </th>
+        <th pSortableColumn="status">
+          Estado
+          <p-sortIcon field="status" />
+        </th>
+        <th pSortableColumn="createdDate">
+          Fecha creacion
+          <p-sortIcon field="createdDate" />
+        </th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-template>
+      <tr>
+        <td>{{ template.code }}</td>
+        <td>{{ template.name }}</td>
+        <td>{{ template.category ?? '—' }}</td>
+        <td>{{ template.documentType ? template.documentType.replace('_', ' ') : '—' }}</td>
+        <td>
+          <p-tag [value]="template.status" [severity]="statusSeverity(template.status)" />
+        </td>
+        <td>{{ template.createdDate | date: 'dd/MM/yyyy' }}</td>
+        <td class="actions-cell">
+          <sum-btn
+            icon="pi pi-eye"
+            [rounded]="true"
+            [textStyle]="true"
+            severity="info"
+            size="small"
+            (clicked)="onView(template)" />
+          <sum-btn
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [textStyle]="true"
+            severity="info"
+            size="small"
+            (clicked)="onEdit(template)" />
+          <sum-btn
+            icon="pi pi-trash"
+            [rounded]="true"
+            [textStyle]="true"
+            severity="danger"
+            size="small"
+            (clicked)="onDelete(template)" />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7" class="empty-message">No se encontraron plantillas</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
