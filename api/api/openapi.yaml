@@ -1,0 +1,573 @@
+openapi: 3.0.3
+info:
+  title: Printing BFF API
+  version: '1.0'
+  description: API for managing DOCX templates and executions
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /templates:
+    get:
+      summary: Get all templates
+      operationId: getTemplates
+      tags:
+        - Templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Tenant ID to filter templates
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid tenant ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new template
+      operationId: createTemplate
+      tags:
+        - Templates
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: DOCX template file
+                tenantId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                category:
+                  $ref: '#/components/schemas/TemplateCategory'
+                documentType:
+                  $ref: '#/components/schemas/DocumentType'
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+              required:
+                - file
+                - tenantId
+                - code
+                - name
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Template code already exists for this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /templates/{id}:
+    get:
+      summary: Get template by ID
+      operationId: getTemplate
+      tags:
+        - Templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update template
+      operationId: updateTemplate
+      tags:
+        - Templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: New DOCX template file (optional, replaces existing file)
+                name:
+                  type: string
+                description:
+                  type: string
+                category:
+                  $ref: '#/components/schemas/TemplateCategory'
+                documentType:
+                  $ref: '#/components/schemas/DocumentType'
+                status:
+                  $ref: '#/components/schemas/TemplateStatus'
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete template
+      operationId: deleteTemplate
+      tags:
+        - Templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Template deleted
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /executions:
+    get:
+      summary: Get execution history
+      operationId: getExecutions
+      tags:
+        - Executions
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: templateId
+          schema:
+            type: string
+            format: uuid
+          description: Filter by template ID
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ExecutionStatus'
+          description: Filter by execution status
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Page number for pagination
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: List of executions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Execution'
+    post:
+      summary: Launch a new execution
+      operationId: launchExecution
+      tags:
+        - Executions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LaunchExecutionRequest'
+      responses:
+        '202':
+          description: Execution launched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /executions/{id}:
+    get:
+      summary: Get execution details
+      operationId: getExecution
+      tags:
+        - Executions
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Execution details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '404':
+          description: Execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /executions/{id}/cancel:
+    post:
+      summary: Cancel a pending execution
+      operationId: cancelExecution
+      tags:
+        - Executions
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Execution cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Execution'
+        '400':
+          description: Execution cannot be cancelled (not in PENDING status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    Template:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/TemplateCategory'
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        path:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        modifiedDate:
+          type: string
+          format: date-time
+        modifiedBy:
+          type: string
+      required:
+        - templateId
+        - tenantId
+        - code
+        - status
+    TemplateCategory:
+      type: string
+      enum:
+        - IBI
+        - IVTM
+        - IAE
+        - RECAUDACION
+        - NOTIFICACION
+    DocumentType:
+      type: string
+      enum:
+        - CARTA_PAGO
+        - NOTIFICACION
+        - RECIBO
+        - RESOLUCION
+        - EDICTO
+    TemplateStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - ARCHIVED
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/TemplateCategory'
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        status:
+          $ref: '#/components/schemas/TemplateStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    Execution:
+      type: object
+      properties:
+        executionId:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        numberOfDocuments:
+          type: integer
+          minimum: 1
+        convertToPdf:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+          description: Date when the execution process was created
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in milliseconds
+        createdBy:
+          type: string
+        errorMessage:
+          type: string
+        generatedFiles:
+          type: array
+          items:
+            type: object
+            properties:
+              fileName:
+                type: string
+              downloadUrl:
+                type: string
+      required:
+        - executionId
+        - templateId
+        - status
+        - numberOfDocuments
+        - createdDate
+        - startTime
+        - createdBy
+    ExecutionStatus:
+      type: string
+      enum:
+        - PENDING
+        - RUNNING
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+    LaunchExecutionRequest:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        numberOfDocuments:
+          type: integer
+          minimum: 1
+          description: Number of documents to generate
+        convertToPdf:
+          type: boolean
+          description: Whether to convert generated documents to PDF
+      required:
+        - templateId
+        - numberOfDocuments
+        - convertToPdf
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+    ApiResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          description: Response data
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    Metadata:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+        page:
+          type: integer
+          description: Current page number
+        pageSize:
+          type: integer
+          description: Number of items per page
+        totalPages:
+          type: integer
+          description: Total number of pages
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Authorization header using the Bearer scheme
